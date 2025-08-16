@@ -6,25 +6,252 @@
 
 generator client {
 
-  provider = "prisma-client-js"
-  output   = "../generated/prisma"
+    provider = "prisma-client-js"
+    output   = "../generated/prisma"
 
 }
 
 datasource db {
 
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+    provider = "mysql"
+    url      = env("DATABASE_URL")
 
 }
 
 model User {
 
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  name      String?
-  password  String   @db.VarChar(255)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+    id        Int      @id @default(autoincrement())
+    first_name String
+    second_name String
+    first_last_name String
+    second_last_name String
+    email     String   @unique
+    phone     String
+    password  String   @db.VarChar(255)
+    rol_id    Int
+    create_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    deal Deal[]
+    sale Sale[]
+    interaction Interaction[]
+    role      Role     @relation(fields: [rol_id], references: [id])
+
+    @@map("users")
+
+}
+
+model Role {
+
+    id        Int      @id @default(autoincrement())
+    name      String
+    description String
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    users User[]
+
+    @@map("roles")
+
+}
+
+model Third {
+
+    id        Int      @id @default(autoincrement())
+    first_name String
+    second_name String
+    first_last_name String
+    second_last_name String
+    email     String   @unique
+    phone     String
+    address   String
+    third_type_id Int
+    third_status_id Int
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    deal Deal[]
+    sale Sale[]
+    interaction Interaction[]
+    third_type ThirdType @relation(fields: [third_type_id], references: [id])
+    third_status ThirdStatus @relation(fields: [third_status_id], references: [id])
+
+    @@map("thirds")
+
+}
+
+model ThirdType {
+
+    id       Int      @id @default(autoincrement())
+    name     String
+    description String
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    thirds Third[]
+
+    @@map("third_types")
+
+}
+
+model ThirdStatus {
+
+    id       Int      @id @default(autoincrement())
+    name     String
+    description String
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    thirds Third[]
+
+    @@map("third_statuses")
+
+}
+
+model Deal {
+
+    id       Int      @id @default(autoincrement())
+    description String
+    estimated_value Float
+    deal_stage_id Int
+    third_id Int
+    user_id Int
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    third Third @relation(fields: [third_id], references: [id])
+    user User @relation(fields: [user_id], references: [id])
+    deal_stage DealStage @relation(fields: [deal_stage_id], references: [id])
+
+    @@map("deals")
+
+}
+
+model DealStage {
+
+    id       Int      @id @default(autoincrement())
+    name     String
+    description String
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    deals Deal[]
+
+    @@map("deals_stages")
+
+}
+model Interaction {
+
+    id       Int      @id @default(autoincrement())
+    date     DateTime
+    notes    String
+    interaction_type_id Int
+    user_id  Int
+    third_id  Int
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    interaction_type InteractionType @relation(fields: [interaction_type_id], references: [id])
+    user User @relation(fields: [user_id], references: [id])
+    third Third @relation(fields: [third_id], references: [id])
+
+    @@map("interactions")
+
+}
+
+model InteractionType {
+
+    id       Int      @id @default(autoincrement())
+    name     String
+    description String
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    interactions Interaction[]
+
+    @@map("interactions_types")
+
+}
+
+model Item {
+
+    id       Int      @id @default(autoincrement())
+    name     String
+    description String
+    price    Float
+    stock    Int
+    item_type_id Int
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    sale_detail SaleDetail[]
+    item_type ItemType @relation(fields: [item_type_id], references: [id])
+
+    @@map("items")
+
+}
+
+model ItemType {
+
+    id       Int      @id @default(autoincrement())
+    name     String
+    description String
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    items Item[]
+
+    @@map("item_types")
+
+}
+
+model Sale {
+
+    id       Int      @id @default(autoincrement())
+    date DateTime
+    total Float
+    sale_status_id Int
+    third_id Int
+    user_id Int
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    sale_details SaleDetail[]
+    sale_status SaleStatus @relation(fields: [sale_status_id], references: [id])
+    third Third @relation(fields: [third_id], references: [id])
+    user User @relation(fields: [user_id], references: [id])
+
+    @@map("sales")
+
+}
+
+model SaleStatus {
+
+    id       Int      @id @default(autoincrement())
+    name     String
+    description String
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    sale Sale[]
+
+    @@map("sale_statuses")
+
+}
+
+model SaleDetail {
+
+    id       Int      @id @default(autoincrement())
+    quantity Int
+    unit_price Float
+    sale_id Int
+    item_id Int
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    sale Sale @relation(fields: [sale_id], references: [id])
+    item Item @relation(fields: [item_id], references: [id])
+
+    @@map("sales_details")
 
 }
