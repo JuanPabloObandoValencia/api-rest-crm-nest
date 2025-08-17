@@ -31,6 +31,10 @@
 $ pnpm install
 ```
 
+```bash
+$ pnpm add @prisma/client
+$ pnpx prisma generate
+```
 ## Compile and run the project
 
 ```bash
