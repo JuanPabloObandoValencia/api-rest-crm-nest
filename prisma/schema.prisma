@@ -90,7 +90,7 @@ model ThirdType {
 
     thirds Third[]
 
-    @@map("third_types")
+    @@map("thirds_types")
 
 }
 
@@ -104,7 +104,7 @@ model ThirdStatus {
 
     thirds Third[]
 
-    @@map("third_statuses")
+    @@map("thirds_statuses")
 
 }
 
@@ -201,7 +201,7 @@ model ItemType {
 
     items Item[]
 
-    @@map("item_types")
+    @@map("items_types")
 
 }
 
@@ -235,7 +235,7 @@ model SaleStatus {
 
     sale Sale[]
 
-    @@map("sale_statuses")
+    @@map("sales_statuses")
 
 }
 
