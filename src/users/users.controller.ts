@@ -10,11 +10,11 @@ export class UsersController {
 
   @Post()
   // @UseGuards(JwtAuthGuard)
-  create(@Body() createUserDto: CreateUserDto) {
+  // create(@Body() createUserDto: CreateUserDto) {
 
-    return this.usersService.create(createUserDto);
+  //   return this.usersService.create(createUserDto);
 
-  }
+  // }
 
   @Get()
   findAll() {

@@ -9,24 +9,24 @@ export class UsersService {
 
   constructor(private prisma: PrismaService) {}
 
-  async create(createUserDto: CreateUserDto) {
+  // async create(createUserDto: CreateUserDto) {
 
-    const saltOrRounds = 10;
-    const hashedPassword = await bcrypt.hash(createUserDto.password, saltOrRounds);
+  //   const saltOrRounds = 10;
+  //   const hashedPassword = await bcrypt.hash(createUserDto.password, saltOrRounds);
 
-    const user = await this.prisma.user.create({
+  //   const user = await this.prisma.user.create({
 
-      data: {
-        email: createUserDto.email,
-        name: createUserDto.name,
-        password: hashedPassword,
-      },
+  //     data: {
+  //       email: createUserDto.email,
+  //       name: createUserDto.name,
+  //       password: hashedPassword,
+  //     },
 
-    });
+  //   });
 
-    return user;
+  //   return user;
 
-  }
+  // }
 
   async findByEmail(email: string) {
     return this.prisma.user.findUnique({
