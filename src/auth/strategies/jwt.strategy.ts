@@ -8,7 +8,7 @@ constructor() {
     super({
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
     ignoreExpiration: false,
-    secretOrKey: process.env.JWT_SECRET || 'secretKey',
+    secretOrKey: process.env.JWT_SECRET || 'miClaveSuperSecreta',
     });
 }
 
