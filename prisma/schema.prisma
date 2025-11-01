@@ -1,257 +1,119 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-
     provider = "prisma-client-js"
-    output   = "../generated/prisma"
-
 }
 
 datasource db {
-
     provider = "mysql"
     url      = env("DATABASE_URL")
-
 }
 
+// -----------------------------------------------------------
+// MODELO DE USUARIOS Y ROLES
+// -----------------------------------------------------------
+
 model User {
+    id               Int      @id @default(autoincrement())
+    first_name       String
+    second_name      String?
+    first_last_name  String
+    second_last_name String?
+    email            String   @unique
+    phone            String?
+    password         String   @db.VarChar(255)
+    role_id          Int      @default(1)
+    created_at       DateTime @default(now())
+    updated_at       DateTime @updatedAt
 
-    id        Int      @id @default(autoincrement())
-    first_name String
-    second_name String
-    first_last_name String
-    second_last_name String
-    email     String   @unique
-    phone     String
-    password  String   @db.VarChar(255)
-    rol_id    Int
-    create_at DateTime @default(now())
-    updated_at DateTime @updatedAt
-
-    deal Deal[]
-    sale Sale[]
-    interaction Interaction[]
-    role      Role     @relation(fields: [rol_id], references: [id])
+    // Relaciones
+    role     Role      @relation(fields: [role_id], references: [id])
+    tasks    Task[]    @relation("AssignedTasks")
+    projects Project[] @relation("CreatedProjects")
 
     @@map("users")
-
 }
 
 model Role {
-
-    id        Int      @id @default(autoincrement())
-    name      String
-    description String
-    created_at DateTime @default(now())
-    updated_at DateTime @updatedAt
+    id          Int      @id @default(autoincrement())
+    name        String
+    description String?
+    created_at  DateTime @default(now())
+    updated_at  DateTime @updatedAt
 
     users User[]
 
     @@map("roles")
-
 }
 
-model Third {
+// -----------------------------------------------------------
+// MODELO DE PROYECTOS
+// -----------------------------------------------------------
 
-    id        Int      @id @default(autoincrement())
-    first_name String
-    second_name String
-    first_last_name String
-    second_last_name String
-    email     String   @unique
-    phone     String
-    address   String
-    third_type_id Int
-    third_status_id Int
+model Project {
+    id          Int       @id @default(autoincrement())
+    name        String
+    description String?
+    start_date  DateTime?
+    end_date    DateTime?
+    created_by  Int
+    created_at  DateTime  @default(now())
+    updated_at  DateTime  @updatedAt
+
+    // Relaciones
+    user  User   @relation("CreatedProjects", fields: [created_by], references: [id])
+    tasks Task[]
+
+    @@map("projects")
+}
+
+// -----------------------------------------------------------
+// MODELOS DE TAREAS
+// -----------------------------------------------------------
+
+model Task {
+    id          Int       @id @default(autoincrement())
+    title       String
+    description String?
+    status_id   Int
+    priority_id Int
+    project_id  Int
+    assigned_to Int
+    due_date    DateTime?
+    created_at  DateTime  @default(now())
+    updated_at  DateTime  @updatedAt
+
+    // Relaciones
+    project  Project      @relation(fields: [project_id], references: [id])
+    status   TaskStatus   @relation(fields: [status_id], references: [id])
+    priority TaskPriority @relation(fields: [priority_id], references: [id])
+    assignee User         @relation("AssignedTasks", fields: [assigned_to], references: [id])
+
+    @@map("tasks")
+}
+
+// -----------------------------------------------------------
+// TABLAS DE APOYO: ESTADOS Y PRIORIDADES
+// -----------------------------------------------------------
+
+model TaskStatus {
+    id         Int      @id @default(autoincrement())
+    name       String
+    color      String?
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
 
-    deal Deal[]
-    sale Sale[]
-    interaction Interaction[]
-    third_type ThirdType @relation(fields: [third_type_id], references: [id])
-    third_status ThirdStatus @relation(fields: [third_status_id], references: [id])
+    tasks Task[]
 
-    @@map("thirds")
-
+    @@map("task_statuses")
 }
 
-model ThirdType {
-
-    id       Int      @id @default(autoincrement())
-    name     String
-    description String
+model TaskPriority {
+    id         Int      @id @default(autoincrement())
+    name       String
+    color      String?
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
 
-    thirds Third[]
+    tasks Task[]
 
-    @@map("thirds_types")
-
-}
-
-model ThirdStatus {
-
-    id       Int      @id @default(autoincrement())
-    name     String
-    description String
-    created_at DateTime @default(now())
-    updated_at DateTime @updatedAt
-
-    thirds Third[]
-
-    @@map("thirds_statuses")
-
-}
-
-model Deal {
-
-    id       Int      @id @default(autoincrement())
-    description String
-    estimated_value Float
-    deal_stage_id Int
-    third_id Int
-    user_id Int
-    created_at DateTime @default(now())
-    updated_at DateTime @updatedAt
-
-    third Third @relation(fields: [third_id], references: [id])
-    user User @relation(fields: [user_id], references: [id])
-    deal_stage DealStage @relation(fields: [deal_stage_id], references: [id])
-
-    @@map("deals")
-
-}
-
-model DealStage {
-
-    id       Int      @id @default(autoincrement())
-    name     String
-    description String
-    created_at DateTime @default(now())
-    updated_at DateTime @updatedAt
-
-    deals Deal[]
-
-    @@map("deals_stages")
-
-}
-model Interaction {
-
-    id       Int      @id @default(autoincrement())
-    date     DateTime
-    notes    String
-    interaction_type_id Int
-    user_id  Int
-    third_id  Int
-    created_at DateTime @default(now())
-    updated_at DateTime @updatedAt
-
-    interaction_type InteractionType @relation(fields: [interaction_type_id], references: [id])
-    user User @relation(fields: [user_id], references: [id])
-    third Third @relation(fields: [third_id], references: [id])
-
-    @@map("interactions")
-
-}
-
-model InteractionType {
-
-    id       Int      @id @default(autoincrement())
-    name     String
-    description String
-    created_at DateTime @default(now())
-    updated_at DateTime @updatedAt
-
-    interactions Interaction[]
-
-    @@map("interactions_types")
-
-}
-
-model Item {
-
-    id       Int      @id @default(autoincrement())
-    name     String
-    description String
-    price    Float
-    stock    Int
-    item_type_id Int
-    created_at DateTime @default(now())
-    updated_at DateTime @updatedAt
-
-    sale_detail SaleDetail[]
-    item_type ItemType @relation(fields: [item_type_id], references: [id])
-
-    @@map("items")
-
-}
-
-model ItemType {
-
-    id       Int      @id @default(autoincrement())
-    name     String
-    description String
-    created_at DateTime @default(now())
-    updated_at DateTime @updatedAt
-
-    items Item[]
-
-    @@map("items_types")
-
-}
-
-model Sale {
-
-    id       Int      @id @default(autoincrement())
-    date DateTime
-    total Float
-    sale_status_id Int
-    third_id Int
-    user_id Int
-    created_at DateTime @default(now())
-    updated_at DateTime @updatedAt
-
-    sale_details SaleDetail[]
-    sale_status SaleStatus @relation(fields: [sale_status_id], references: [id])
-    third Third @relation(fields: [third_id], references: [id])
-    user User @relation(fields: [user_id], references: [id])
-
-    @@map("sales")
-
-}
-
-model SaleStatus {
-
-    id       Int      @id @default(autoincrement())
-    name     String
-    description String
-    created_at DateTime @default(now())
-    updated_at DateTime @updatedAt
-
-    sale Sale[]
-
-    @@map("sales_statuses")
-
-}
-
-model SaleDetail {
-
-    id       Int      @id @default(autoincrement())
-    quantity Int
-    unit_price Float
-    sale_id Int
-    item_id Int
-    created_at DateTime @default(now())
-    updated_at DateTime @updatedAt
-
-    sale Sale @relation(fields: [sale_id], references: [id])
-    item Item @relation(fields: [item_id], references: [id])
-
-    @@map("sales_details")
-
+    @@map("task_priorities")
 }

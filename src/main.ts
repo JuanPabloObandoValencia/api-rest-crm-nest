@@ -1,27 +1,20 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
-
   const app = await NestFactory.create(AppModule);
 
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    forbidNonWhitelisted: true,
-    transform: true,
-  }
-
-  ));
-
-  await app.listen(process.env.PORT ?? 3001);
-
   app.enableCors({
-    origin: '*',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    allowedHeaders: '*',
+    origin: ['http://localhost:5173'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
   });
 
+  app.setGlobalPrefix('api');
+
+  await app.listen(3001);
+  console.log('Backend corriendo en http://localhost:3001/api');
 }
 
 bootstrap();
